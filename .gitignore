@@ -3,3 +3,5 @@ __pycache__/
 tmp/
 node_modules/
 bower_components/
+.cache/
+self-home.nja
