@@ -50,3 +50,19 @@ class OnOffSwitch(Actuator):
 
     def __str__(self):
         return "%s at %s is %s" % (self.name, self.position, self.state.name)
+
+
+#Maybe this should be an application and run on its own thread...
+class TemporizedSwitch(OnOffSwitch):
+
+    def __init__(self, send_message, driver, name, position, on_time, off_time):
+        super().__init__(send_message, driver, name, position)
+        self.on_time = on_time
+        self.off_time = off_time
+
+    def on(self):
+        pass
+
+    def off(self):
+        pass
+
