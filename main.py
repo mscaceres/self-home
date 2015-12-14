@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+# Used to simulate a house with N actuators and sensors, the actuators used just print
+# action and the sensor open a network connection waiting for a stimulus
+# When the stimulus arrives, the asyncio loop wake up the corresponing sensor this send
+# the event to the event dispacher so the actuators can respond in consecuense.
+
 
 def filter_by_name(name):
     def f (message):
@@ -12,7 +17,10 @@ def create_sensor_actuator_pair(number, has, start_port):
     sensor_position = 'switch_sensor_pos_'
     for i in range(1, number + 1):
         d = FakeSwitchDriver()
-        actuator = Light(has.send_message, d, actuator_name + str(i), actuator_position + str(i))  # lint:ok
+        actuator = Light(has.send_message,
+                         d,
+                         actuator_name + str(i),
+                         actuator_position + str(i))  # lint:ok
         has.add_actuator(actuator)
 
         sensor = LitSwitch(sensor_name + str(i), sensor_position + str(i), has.send_message)  # lint:ok
@@ -25,32 +33,6 @@ def create_sensor_actuator_pair(number, has, start_port):
         LitDriver(sensor.start_sensing, '127.0.0.1', start_port + i)
 
 
-def create_clients(number, start_port):
-    import socket
-    import random
-    import time
-    messages = [b"ON", b"OFF"]
-    sockets = []
-    sleep_times = [0, 1, 0.5]
-    for i in range(1,number + 1):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # Connect the socket to the port where the server is listening
-        server_address = ('localhost', start_port + i)
-        print("client in {}".format(server_address))
-        sock.connect(server_address)
-        time.sleep(1)
-        sockets.append(sock)
-
-    while True:
-        message = random.choice(messages)
-        client = random.choice(sockets)
-        print("Client sending {} to {}".format(message, client.getpeername()))
-        client.sendall(message)
-        m = client.recv(len(message))
-        print("Client received {} -- to sleep".format(m))
-        time.sleep(ramdom.choice(sleep_times))
-
-
 if __name__ == "__main__":
 
     from domo.domo import HAS
@@ -60,15 +42,12 @@ if __name__ == "__main__":
     from domo.sensors.lit_switch_driver import *
     import domo.constants as const
     import asyncio
-    import concurrent.futures
 
     has = HAS()
-    create_sensor_actuator_pair(2, has, 8888)
+    create_sensor_actuator_pair(30, has, 8880)
 
     loop = asyncio.get_event_loop()
     try:
-        exe = concurrent.futures.ProcessPoolExecutor(max_workers=1)
-        exe.submit(create_clients, 2, 8888)
         loop.run_forever()
     except KeyboardInterrupt:
         pass

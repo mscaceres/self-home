@@ -9,18 +9,20 @@ class LitDriver(asyncio.Protocol):
         self.loop = asyncio.get_event_loop()
         server = self.loop.create_server(lambda: self, host, port)
         self.server = self.loop.run_until_complete(server)
-        print('Serving on {}'.format(self.server.sockets[0].getsockname()))
+        self.socket_name = self.server.sockets[0].getsockname()
+        print('Serving on {}'.format(self.socket_name))
 
     def connection_made(self, transport):
-        peername = transport.get_extra_info('peername')
-        print('Driver: Connection from {}'.format(peername))
+        self.peername = transport.get_extra_info('peername')
+        print('Driver: Connection from {}'.format(self.peername))
         self.transport = transport
 
     def data_received(self, data):
+        print("="*30)
         message = data.decode()
-        print('Driver: Data received: {!r}'.format(message))
-        print('Driver: Send: {!r}'.format(message))
-        self.transport.write(data)
+        print('{} --> {}: {!r}'.format(self.peername, self.socket_name, message))
+        #print('Driver: Send: {!r}'.format(message))
+        #self.transport.write(data)
         self.sensor_cb(message.strip())
 
     def close(self):
