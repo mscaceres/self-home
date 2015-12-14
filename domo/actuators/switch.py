@@ -1,4 +1,5 @@
 import enum
+import asyncio
 from domo.actuators import *
 from domo import constants as const
 
@@ -16,8 +17,7 @@ class FakeSwitchDriver():
         print("Turning off a light")
 
 
-
-class OnOffSwitch(Actuator):
+class ToggleSwitch(Actuator):
 
     def __init__(self, send_message, driver, name, position):
         super().__init__()
@@ -49,41 +49,67 @@ class OnOffSwitch(Actuator):
 
     def on(self):
         if (self.state == SwitchState.OFF):
-            print(self)
             self.driver.on()
             self.state = SwitchState.ON
-            print(self)
-
 
     def off(self):
         if (self.state == SwitchState.ON):
-            print(self)
             self.driver.off()
             self.state = SwitchState.OFF
-            print(self)
 
-
-    def __call__(self,topic,message):
+    def __call__(self, topic, message):
         if topic == const.SWITCH_SENSOR_ON:
             self.on()
-        else:
+        elif topic == const.SWITCH_SENSOR_OFF:
             self.off()
+        else:
+            #log error
+            pass
 
-    def __str__(self):
+    def __repr__(self):
         return "{0} at {1} is {2}".format(self.name, self.position, self.state.name)
 
 
-#Maybe this should be an application and run on its own thread...
-class TemporizedSwitch(OnOffSwitch):
+class TemporizedSwitch(ToggleSwitch):
 
-    def __init__(self, send_message, driver, name, position, on_time, off_time):
+    def __init__(self, send_message, driver, name, position, on_time=0, off_time=0):
         super().__init__(send_message, driver, name, position)
         self.on_time = on_time
         self.off_time = off_time
 
+    def _less_than_a_day(self, seconds):
+        return seconds < 86400
+
     def on(self):
-        pass
+        super().on()
+        if self.on_time:
+            loop = asyncio.get_event_loop()
+            loop.call_later(self.on_time, self.off)
 
     def off(self):
-        pass
+        super().off()
+        if self.off_time:
+            loop = asyncio.get_event_loop()
+            loop.call_later(self.off_time, self.on)
 
+    @property
+    def on_time(self):
+        return self._on_time
+
+    @on_time.setter
+    def on_time(self, seconds):
+        if self._less_than_a_day(seconds):
+            self._on_time = seconds
+        else:
+            raise ValueError("Time shall be less than 86400 seconds")
+
+    @property
+    def off_time(self):
+        return self._off_time
+
+    @off_time.setter
+    def off_time(self, seconds):
+        if self._less_than_a_day(seconds):
+            self._off_time = seconds
+        else:
+            raise ValueError("Time shall be less than 86400 seconds")
