@@ -1,6 +1,5 @@
-import uuid
 import domo.event_dispacher as ed
-import domo.constants as const
+import uuid
 
 
 class HAS:
@@ -18,12 +17,10 @@ class HAS:
     def get_actuators(self):
         return self.actuators.values()
 
-    def register_listener(self, topic, listener, message_filter):
+    def register_listener(self, topic, listener, message_filter=None):
         ed.subscribe(topic, listener, message_filter)
 
     def send_message(self, topic, message):
         ed.send_message(topic, message)
-
-
 
 

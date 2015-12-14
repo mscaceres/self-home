@@ -1,6 +1,6 @@
 __author__ = 'mcaceres'
 
-from domo.actuators.switch.on_off_switch import *
+from domo.actuators.switch import *
 import pytest
 
 
@@ -19,10 +19,6 @@ def fake_driver():
         def off(self):
             self._off += 1
 
-        def register_event_handler(self,callback):
-            self.callback = callback
-            self._register += 1
-
     return FakeDriver()
 
 
@@ -33,7 +29,6 @@ def fake_send_message():
 
 def test_creating_switch(fake_driver, fake_send_message):
     sw = OnOffSwitch(fake_send_message, fake_driver, "sw1", "swpos1")
-    assert sw.driver._register == 1
     assert sw.message['name'] == 'sw1'
     assert sw.message['pos'] == 'swpos1'
     assert sw.message['state'] == SwitchState.OFF
@@ -58,9 +53,3 @@ def test_switch_off(fake_driver, fake_send_message):
     sw.off()
     assert fake_driver._off == 1
     assert sw.state == SwitchState.OFF
-
-def test_switch_callback(fake_driver, fake_send_message):
-    sw = OnOffSwitch(fake_send_message, fake_driver, "sw1", "swpos1")
-    assert sw.state == SwitchState.OFF
-    fake_driver.callback(SwitchState.ON)
-    assert sw.state == SwitchState.ON

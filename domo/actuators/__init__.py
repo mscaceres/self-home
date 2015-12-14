@@ -1,7 +1,4 @@
-import uuid
-
-def id_generator():
-    return uuid.uuid1()
+from domo.ids import id_generator
 
 class Actuator:
 

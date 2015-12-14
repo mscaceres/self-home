@@ -1,4 +1,4 @@
-from domo.actuators.switch.on_off_switch import OnOffSwitch
+from domo.actuators.switch import OnOffSwitch
 import domo.constants as const
 
 class Driver:

@@ -1,10 +1,20 @@
 import enum
-from domo.actuators import Actuator
+from domo.actuators import *
 from domo import constants as const
+
 
 class SwitchState(enum.Enum):
     ON = 0
     OFF = 1
+
+class FakeSwitchDriver():
+
+    def on(self):
+        print("Turning on a light")
+
+    def off(self):
+        print("Turning off a light")
+
 
 
 class OnOffSwitch(Actuator):
@@ -16,7 +26,6 @@ class OnOffSwitch(Actuator):
         self.name = name
         self._state = SwitchState.OFF
         self.send_message = send_message
-        driver.register_event_handler(lambda x:self.__class__.state.__set__(self, x))
         self.topic = const.SWITCH
 
     @property
@@ -40,16 +49,28 @@ class OnOffSwitch(Actuator):
 
     def on(self):
         if (self.state == SwitchState.OFF):
+            print(self)
             self.driver.on()
             self.state = SwitchState.ON
+            print(self)
+
 
     def off(self):
         if (self.state == SwitchState.ON):
+            print(self)
             self.driver.off()
             self.state = SwitchState.OFF
+            print(self)
+
+
+    def __call__(self,topic,message):
+        if topic == const.SWITCH_SENSOR_ON:
+            self.on()
+        else:
+            self.off()
 
     def __str__(self):
-        return "%s at %s is %s" % (self.name, self.position, self.state.name)
+        return "{0} at {1} is {2}".format(self.name, self.position, self.state.name)
 
 
 #Maybe this should be an application and run on its own thread...
