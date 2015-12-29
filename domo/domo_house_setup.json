@@ -1,0 +1,32 @@
+{
+    "actuators": [
+        { "Light":[{"name":"l1", "position":"comedor", "driver":"FakeSwitchDriver"},
+                 {"name":"l2", "position":"lavadero", "driver":"FakeSwitchDriver"},
+                 {"name":"l3", "position":"patio trasero", "driver":"FakeSwitchDriver"}
+          ],
+          "TemporizedSwitch": [{"name":"riego", "position":"patio delantero",
+                              "driver":"FakeSwitchDriver", "on_time":5, "off_time":30}
+          ]
+        }
+    ],
+    "sensors":[
+        { "LitSwitch": [
+                [{"name":"tecla1", "position":"comedor"},
+                 {"driver":"LitDriver","host":"localhost","port":"8888"}],
+                [{"name":"tecla2", "position":"lavadero"},
+                 {"driver":"LitDriver","host":"localhost","port":"8888"}],
+                [{"name":"tecla3", "position":"patio trasero"},
+                 {"driver":"LitDriver","host":"localhost","port":"8888"}]
+           ]
+        }
+    ],
+    "topics": ["SWITCH_SENSOR_ON" , "SWITCH_SENSOR_OFF"],
+    "listeners":[
+                     ["SWITCH_SENSOR_ON","l1","tecla1"],
+                     ["SWITCH_SENSOR_OFF","l1","tecla1"],
+                     ["SWITCH_SENSOR_ON","l2","tecla2"],
+                     ["SWITCH_SENSOR_OFF","l2","tecla2"],
+                     ["SWITCH_SENSOR_ON","l3","tecla3"],
+                     ["SWITCH_SENSOR_OFF","l3","tecla3"]
+                ]
+}
