@@ -1,20 +1,25 @@
 import enum
 import asyncio
+import logging
 from domo.actuators import *
 from domo import constants as const
+
+
+log = logging.getLogger(__name__)
 
 
 class SwitchState(enum.Enum):
     ON = 0
     OFF = 1
 
+
 class FakeSwitchDriver():
 
     def on(self):
-        print("Turning on a light")
+        log.info("Driver: Turning on a light")
 
     def off(self):
-        print("Turning off a light")
+        log.info("Driver: Turning off a light")
 
 
 class ToggleSwitch(Actuator):
@@ -36,9 +41,11 @@ class ToggleSwitch(Actuator):
     def state(self, new_state):
         if new_state in SwitchState:
             self._state = new_state
+            log.info("New state: {}".format(self._state))
+            log.info("Sending message: {}".format(self.message))
             self.send_message(self.topic, self.message)
         else:
-            raise ValueError("%s not in %s" % (new_state, SwitchState))
+            raise ValueError("{} not in {}".format(new_state, Switchstate))
 
     @property
     def message(self):
@@ -63,7 +70,7 @@ class ToggleSwitch(Actuator):
         elif topic == const.SWITCH_SENSOR_OFF:
             self.off()
         else:
-            #log error
+            # log error
             pass
 
     def __repr__(self):

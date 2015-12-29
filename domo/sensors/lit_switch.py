@@ -3,6 +3,10 @@ from domo.sensors import Sensor
 from domo.actuators.switch import SwitchState
 from domo import constants as const
 import asyncio
+import logging
+
+log = logging.getLogger(__name__)
+
 
 class LitSwitch(Sensor):
 
@@ -15,6 +19,7 @@ class LitSwitch(Sensor):
         # maybe a call to configure and register to the hal
 
     def start_sensing(self, message):
+        log.info("New message from driver: {}".format(message))
         self.state = SwitchState[message]
         if self.state == SwitchState.OFF:
             self.send_message(const.SWITCH_SENSOR_OFF, self.message)
@@ -30,7 +35,5 @@ class LitSwitch(Sensor):
                 'pos': self.position,
                 'state': self.state}
 
-
     def __repr__(self):
         return "%s at %s is %s" % (self.name, self.position, self.state.name)
-
