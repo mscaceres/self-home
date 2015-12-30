@@ -10,8 +10,8 @@ log = logging.getLogger(__name__)
 
 class LitSwitch(Sensor):
 
-    def __init__(self, name, position, send_message):
-        super().__init__()
+    def __init__(self, name, position, send_message, id=None):
+        super().__init__(id=id)
         self.name = name
         self.position = position
         self.send_message = send_message

@@ -1,9 +1,9 @@
-from domo.ids import id_generator
+import domo.ids as ids
 
 class Actuator:
 
-    def __init__(self):
-        self.id = id_generator()
+    def __init__(self, id=None):
+        self.id = ids.get_id(id)
 
     def on(self):
         raise NotImplementedError(self)

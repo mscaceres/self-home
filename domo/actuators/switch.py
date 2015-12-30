@@ -24,8 +24,8 @@ class FakeSwitchDriver():
 
 class ToggleSwitch(Actuator):
 
-    def __init__(self, send_message, driver, name, position):
-        super().__init__()
+    def __init__(self, send_message, driver, name, position, id=None):
+        super().__init__(id)
         self.driver = driver
         self.position = position
         self.name = name
@@ -79,8 +79,8 @@ class ToggleSwitch(Actuator):
 
 class TemporizedSwitch(ToggleSwitch):
 
-    def __init__(self, send_message, driver, name, position, on_time=0, off_time=0):
-        super().__init__(send_message, driver, name, position)
+    def __init__(self, send_message, driver, name, position, on_time=0, off_time=0, id=None):
+        super().__init__(send_message, driver, name, position, id=id)
         self.on_time = on_time
         self.off_time = off_time
 

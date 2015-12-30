@@ -1,5 +1,5 @@
 import domo.event_dispacher as ed
-import uuid
+import ids
 
 
 class HAS:
@@ -11,11 +11,22 @@ class HAS:
         self.actuators[actuator.id] = actuator
 
     def get_actuator(self, id):
-        uu_id = uuid.UUID(id)
-        return self.actuators[uu_id]
+        a_id = ids.getId(id)
+        return self.actuators[a_id]
 
     def get_actuators(self):
         return self.actuators.values()
+
+    def add_sensor(self, sensor):
+        self.sensors[sensor.id] = sensor
+
+    def get_sensor(self, id):
+        s_id = ids.getId(id)
+        return self.sensors[s_id]
+
+    def get_sensors(self):
+        return self.sensors.values()
+
 
     def register_listener(self, topic, listener, message_filter=None):
         ed.subscribe(topic, listener, message_filter)
@@ -23,4 +34,8 @@ class HAS:
     def send_message(self, topic, message):
         ed.send_message(topic, message)
 
+    def start(self):
+        pass
 
+    def shutdown(self):
+        pass
