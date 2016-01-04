@@ -1,5 +1,8 @@
 import domo.ids as ids
 
+
+__all__ = ["switch", "light"]
+
 class Actuator:
 
     def __init__(self, id=None):

@@ -1,7 +1,7 @@
 import enum
 import asyncio
 import logging
-from domo.actuators import *
+from domo.actuators import Actuator
 from domo import constants as const
 
 
@@ -45,7 +45,7 @@ class ToggleSwitch(Actuator):
             log.info("Sending message: {}".format(self.message))
             self.send_message(self.topic, self.message)
         else:
-            raise ValueError("{} not in {}".format(new_state, Switchstate))
+            raise ValueError("{} not in {}".format(new_state, SwitchState))
 
     @property
     def message(self):
