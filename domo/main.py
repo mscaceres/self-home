@@ -15,7 +15,14 @@ def parse_args(args):
     pass
 
 def start(options):
-    pass
+
+    # type and kwarfs shall be taken from a Json config file or something
+    l = loader.getFrom('db', kwargs)
+    for actuator_data in l.load_actuators_data():
+            has.add_actuator(Actuator.from_tuple(actuator_data))
+
+    for sensor_data in loader.load_sensor_data()
+            has.add_sensor(Sensor.from_tuple(sensor_data))
 
 def shutdown():
     pass

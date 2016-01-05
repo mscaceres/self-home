@@ -18,7 +18,7 @@ class LitSwitch(Sensor):
         self.state = SwitchState.OFF
         # maybe a call to configure and register to the hal
 
-    def start_sensing(self, message):
+    def on_data(self, message):
         log.info("New message from driver: {}".format(message))
         self.state = SwitchState[message]
         if self.state == SwitchState.OFF:

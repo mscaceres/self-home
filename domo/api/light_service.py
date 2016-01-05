@@ -1,5 +1,5 @@
 from flask import Flask, jsonify
-from domo.domo import *
+from domo.has import *
 
 
 service = Flask(__name__)

@@ -6,7 +6,7 @@
 
 import logging
 import logging.config
-from domo.domo import HAS
+from domo.has import HAS
 from domo.actuators.switch import *
 from domo.actuators.light import *
 from domo.sensors.lit_switch import *
@@ -46,7 +46,7 @@ def create_sensor_actuator_pair(number, has, start_port):
         has.register_listener(const.SWITCH_SENSOR_OFF,
                               actuator, filter_by_name(sensor.name))
         # start s1 driver on port 8888
-        LitDriver(sensor.start_sensing, '127.0.0.1', start_port + i)
+        LitDriver(sensor.on_data, '127.0.0.1', start_port + i)
         log.info("Actuator {} -- Sensor {}".format(actuator.name, sensor.name))
 
 

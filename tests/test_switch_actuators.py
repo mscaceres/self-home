@@ -55,7 +55,7 @@ def test_toggleswitch_off(fake_driver, fake_send_message):
     assert sw.state == SwitchState.OFF
 
 
-def test_creating_teporizedswitch(fake_driver, fake_send_message):
+def test_creating_temporizedswitch(fake_driver, fake_send_message):
     sw = TemporizedSwitch(send_message=fake_send_message,
                       driver=fake_driver,
                       name="temp1",
@@ -69,7 +69,7 @@ def test_creating_teporizedswitch(fake_driver, fake_send_message):
     assert sw.off_time == 10
 
 
-def test_creating_teporizedswitch_default_values(fake_driver, fake_send_message):
+def test_creating_temporizedswitch_default_values(fake_driver, fake_send_message):
     sw = TemporizedSwitch(send_message=fake_send_message,
                       driver=fake_driver,
                       name="temp1",
@@ -81,7 +81,7 @@ def test_creating_teporizedswitch_default_values(fake_driver, fake_send_message)
     assert sw.off_time == 0
 
 
-def test_temprizedswitch_on_time_exception(fake_driver, fake_send_message):
+def test_temporizedswitch_on_time_exception(fake_driver, fake_send_message):
     with pytest.raises(ValueError):
         sw = TemporizedSwitch(send_message=fake_send_message,
                           driver=fake_driver,
@@ -92,7 +92,7 @@ def test_temprizedswitch_on_time_exception(fake_driver, fake_send_message):
 
 
 
-def test_temprizedswitch_off_time_exception(fake_driver, fake_send_message):
+def test_temporizedswitch_off_time_exception(fake_driver, fake_send_message):
     with pytest.raises(ValueError):
         sw = TemporizedSwitch(send_message=fake_send_message,
                           driver=fake_driver,
