@@ -1,3 +1,5 @@
+import importlib
+
 def find_class(base_package_name, cls_name):
     # If some exception is raised I expect to not be catch and program to stop so we can fix it.
     base_package = importlib.import_module(base_package_name)

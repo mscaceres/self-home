@@ -6,13 +6,15 @@ from collections import namedtuple
 
 __all__ = ["switch", "light"]
 
+_this_package = __package__
+
 
 class Actuator(metaclass=abc.ABCMeta):
 
-    def __init__(self, id=None):
+    def __init__(self, id=None, driver=None, on_message=None):
         self.id = ids.get_id(id)
-        self.driver = None
-        self.on_message = None
+        self.driver = driver
+        self.on_message = on_message
 
     @abc.abstractmethod
     def on(self):
@@ -22,27 +24,29 @@ class Actuator(metaclass=abc.ABCMeta):
     def off(self):
         pass
 
+
 class ActuatorDriver(metaclass=abc.ABCMeta):
 
     def __init__(self, id=None):
         self.id = ids.get_id(id)
 
 
-# Class used to decouple fromwhere the data is to be readen and how to create the object
-# So we read data from Json, DB, CSV, etc to this objects.
+# Classes used to decouple fromwhere the data is to be readen and how to create the target object
+# So we read data from Json, DB, CSV, etc to this middle namedtuple.
 # Then we create Actuators from them.
-ActuatorData = namedtuple("ActuatorData", "cls, driver, on_message, id, fields")
-ActuatorDriverData = namedtuple("ActuatorDriverData", "cls, id, fields")
+
+ActuatorTuple = namedtuple("ActuatorTuple", "cls, driver, on_message, id, fields")
+ActuatorDriverTuple = namedtuple("ActuatorDriverTuple", "cls, id, fields")
 
 
 class ActuatorDriverFactory:
 
     @classmethod
-    def from_tuple(cls, driver_data):
-        cls_name, id, fields = driver_data
+    def from_tuple(cls, driver_tuple):
+        cls_name, id, fields = driver_tuple
         fields.update({'id':id})
-        cls_obj = domo.utils.find_class(__package__, cls_name)
-        obj = cls(**fields)
+        cls_obj = domo.utils.find_class(_this_package, cls_name)
+        obj = cls_obj(**fields)
         return obj
 
 
@@ -51,7 +55,7 @@ class ActuatorFactory:
     @classmethod
     def _build_kwargs(cls, driver, on_message, id, other_fields):
         kwargs = {}
-        kwargs['driver'] = ActuatorDriverFactory.from_data(driver)
+        kwargs['driver'] = ActuatorDriverFactory.from_tuple(driver)
         # This parameter is needed to send message to the HOUSE so other actuators con react on.
         kwargs['on_message'] = on_message
         kwargs['id'] = id
@@ -59,9 +63,9 @@ class ActuatorFactory:
         return kwargs
 
     @classmethod
-    def from_tuple(cls, actuator_data):
-        cls_name, driver, on_message, id, other_fields = actuator_data
-        cls_obj = domo.utils.find_class(__package__, cls_name)
+    def from_tuple(cls, actuator_tuple):
+        cls_name, driver, on_message, id, other_fields = actuator_tuple
+        cls_obj = domo.utils.find_class(_this_package, cls_name)
         kwargs = cls._build_kwargs(driver, on_message, id, other_fields)
         obj = cls_obj(**kwargs)
         return obj

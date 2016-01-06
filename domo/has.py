@@ -6,6 +6,7 @@ class HAS:
 
     def __init__(self):
         self.actuators = {}
+        self.sensors = {}
 
     def add_actuator(self, actuator):
         self.actuators[actuator.id] = actuator
@@ -26,7 +27,6 @@ class HAS:
 
     def get_sensors(self):
         return self.sensors.values()
-
 
     def register_listener(self, topic, listener, message_filter=None):
         ed.subscribe(topic, listener, message_filter)

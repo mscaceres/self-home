@@ -13,7 +13,10 @@ class SwitchState(enum.Enum):
     OFF = 1
 
 
-class FakeSwitchDriver():
+class FakeSwitchDriver:
+
+    def __init__(self, id=None):
+        self.id = id
 
     def on(self):
         log.info("Driver: Turning on a light")
@@ -24,13 +27,11 @@ class FakeSwitchDriver():
 
 class ToggleSwitch(Actuator):
 
-    def __init__(self, send_message, driver, name, position, id=None):
-        super().__init__(id)
-        self.driver = driver
+    def __init__(self, on_message, driver, name, position, id=None):
+        super().__init__(id=id, on_message=on_message, driver=driver)
         self.position = position
         self.name = name
         self._state = SwitchState.OFF
-        self.send_message = send_message
         self.topic = const.SWITCH
 
     @property
@@ -43,7 +44,7 @@ class ToggleSwitch(Actuator):
             self._state = new_state
             log.info("New state: {}".format(self._state))
             log.info("Sending message: {}".format(self.message))
-            self.send_message(self.topic, self.message)
+            self.on_message(self.topic, self.message)
         else:
             raise ValueError("{} not in {}".format(new_state, SwitchState))
 
@@ -79,8 +80,8 @@ class ToggleSwitch(Actuator):
 
 class TemporizedSwitch(ToggleSwitch):
 
-    def __init__(self, send_message, driver, name, position, on_time=0, off_time=0, id=None):
-        super().__init__(send_message, driver, name, position, id=id)
+    def __init__(self, on_message, driver, name, position, on_time=0, off_time=0, id=None):
+        super().__init__(on_message=on_message, driver=driver, name=name, position=position, id=id)
         self.on_time = on_time
         self.off_time = off_time
 

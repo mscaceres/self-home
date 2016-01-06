@@ -26,7 +26,7 @@ class Loader(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def load_actuators_data(self):
-       pass
+        pass
 
     @abc.abstractmethod
     def load_sensors_data(self):
@@ -55,7 +55,7 @@ class DBLoader(Loader):
         fields = {}
         c = conn.cursor()
         query = "select field, value from {} where {} == ?".format(tbl, tbl_key)
-        c.execute(query,(tbl_value,))
+        c.execute(query, (tbl_value,))
         for row in c.fetchall():
             fields.update({row['field']: row['value']})
         c.close()
@@ -67,20 +67,20 @@ class DBLoader(Loader):
         c.execute(query, (tbl_value,))
         d_id, d_type = c.fetchone()
         c.close()
-        return (d_id, d_type)
+        return d_id, d_type
 
     def load_actuators_data(self):
         with sqlite3.connect(self.db) as conn:
             conn.row_factory = sqlite3.Row
             c = conn.cursor()
             for row in c.execute("select id, type from actuators"):
-                id= row['id']
-                cls= row['type']
+                id = row['id']
+                cls = row['type']
                 fields = self._get_fields("actuator_fields", "actuator_id", id, conn)
                 d_id, d_cls = self._get_driver("actuator_drivers", "actuator_id", id, conn)
                 d_fields = self._get_fields("actuator_driver_fields","driver_id", d_id, conn)
-                driver = domo.actuators.ActuatorDriverData(d_cls, d_id, d_fields)
-                yield domo.actuators.ActuatorData(cls, driver, None, id, fields)
+                driver = domo.actuators.ActuatorDriverTuple(d_cls, d_id, d_fields)
+                yield domo.actuators.ActuatorTuple(cls, driver, None, id, fields)
             c.close()
 
     def load_sensors_data(self):
