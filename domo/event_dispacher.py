@@ -1,5 +1,5 @@
 #{topic:[(callback,message_filter)]}
-db = {}
+DB = {}
 
 
 def _index_of(seq, listener):
@@ -12,38 +12,56 @@ ALL = "EVENT_DISPACHER_ALL_TOPICS"
 
 
 def subscribe(topic, listener, message_filter=None):
-    if topic in db:
-        db[topic].append((listener, message_filter))
+    if topic in DB:
+        DB[topic].append((listener, message_filter))
     else:
-        db[topic] = [(listener, message_filter)]
+        DB[topic] = [(listener, message_filter)]
 
 
 def unsubscribe(topic, listener):
-    if topic in db:
-        i = _index_of(db[topic], listener)
-        db[topic].pop(i)
-        if not db[topic]:
+    if topic in DB:
+        i = _index_of(DB[topic], listener)
+        DB[topic].pop(i)
+        if not DB[topic]:
             unsubscribe_all(topic)
 
 
 def unsubscribe_all(topic=None):
     if topic is None:
-        db.clear()
+        DB.clear()
     else:
-        del db[topic]
+        del DB[topic]
 
 
 def is_subscribed(topic, listener):
-    return (topic in db and _index_of(db[topic], listener) is not None)
+    return (topic in DB and _index_of(DB[topic], listener) is not None)
+
+
+# def send_message(topic, message):
+#     if topic in DB:
+#         for listener, message_filter in DB[topic]:
+#             _call_listener(topic, message, listener, message_filter)
+#         if ALL in DB:
+#             for listener, message_filter in DB[ALL]:
+#                 _call_listener(topic, message, listener, message_filter)
 
 
 def send_message(topic, message):
-    if topic in db:
-        for listener, message_filter in db[topic]:
-            _call_listener(topic, message, listener, message_filter)
-        if ALL in db.keys():
-            for listener, message_filter in db[ALL]:
-                _call_listener(topic, message, listener, message_filter)
+    topics = [topic]
+    if ALL in DB:
+        topics.append(ALL)
+    for listener, topic in _filtered_listeners(topics, message):
+        listener(topic, message)
+
+
+def _filtered_listeners(topics, message):
+    for topic in topics:
+        try:
+            for listener, message_filter in DB[topic]:
+                if message_filter is None or message_filter(message):
+                    yield listener, topic
+        except KeyError:
+            continue
 
 
 def _filter_message(message_filter, message):
