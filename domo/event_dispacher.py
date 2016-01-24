@@ -37,15 +37,6 @@ def is_subscribed(topic, listener):
     return (topic in DB and _index_of(DB[topic], listener) is not None)
 
 
-# def send_message(topic, message):
-#     if topic in DB:
-#         for listener, message_filter in DB[topic]:
-#             _call_listener(topic, message, listener, message_filter)
-#         if ALL in DB:
-#             for listener, message_filter in DB[ALL]:
-#                 _call_listener(topic, message, listener, message_filter)
-
-
 def send_message(topic, message):
     topics = [topic]
     if ALL in DB:
@@ -62,16 +53,3 @@ def _filtered_listeners(topics, message):
                     yield listener, topic
         except KeyError:
             continue
-
-
-def _filter_message(message_filter, message):
-    msg = None
-    if message_filter is None or message_filter(message):
-        msg = message
-    return msg
-
-
-def _call_listener(topic, message, listener, message_filter):
-    msg = _filter_message(message_filter, message)
-    if msg is not None:
-        listener(topic, message)

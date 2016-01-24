@@ -7,7 +7,8 @@ log = logging.getLogger(__name__)
 
 class LitDriver(asyncio.Protocol):
 
-    def __init__(self, cb, host, port):
+    def __init__(self, id, cb, host, port):
+        self.id = id
         self.sensor_cb = cb
         self.loop = asyncio.get_event_loop()
         server = self.loop.create_server(lambda: self, host, port)

@@ -4,6 +4,8 @@ import domo.utils
 from collections import namedtuple
 
 
+__all__ = ['lit_switch', 'lit_switch_driver']
+
 class Sensor(metaclass=abc.ABCMeta):
 
     def __init__(self, id=None):
@@ -17,7 +19,7 @@ class Sensor(metaclass=abc.ABCMeta):
 
 class SensorDriver(metaclass=abc.ABCMeta):
 
-    def __init__(self,id=None,cb=None):
+    def __init__(self, id=None, cb=None):
         self.id = id
         self.on_data = cb
 
@@ -41,7 +43,7 @@ class SensorFactory:
         cls_obj = domo.utils.find_class(__package__, cls_name)
         kwargs = cls._build_kwargs(id, on_message, fields)
         obj = cls_obj(**kwargs)
-        driver.cb = obj.on_data
+        driver = driver._replace(cb=obj.on_data)
         SensorDriverFactory.from_tuple(driver)
         return obj
 
@@ -60,6 +62,6 @@ class SensorDriverFactory:
     def from_tuple(cls, driver_data):
         cls_name, id, cb, fields = driver_data
         cls_obj = domo.utils.find_class(__package__, cls_name)
-        kwargs = cls.build_kwargs(id, cb, fields)
+        kwargs = cls._build_kwargs(id, cb, fields)
         obj = cls_obj(**kwargs)
         return obj

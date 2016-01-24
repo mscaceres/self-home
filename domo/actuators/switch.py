@@ -12,7 +12,7 @@ class SwitchState(enum.Enum):
     ON = 0
     OFF = 1
 
-
+# driver shall also be using a loop, so we can switch a task when performing IO
 class FakeSwitchDriver:
 
     def __init__(self, id=None):
@@ -27,8 +27,8 @@ class FakeSwitchDriver:
 
 class ToggleSwitch(Actuator):
 
-    def __init__(self, on_message, driver, name, position, id=None):
-        super().__init__(id=id, on_message=on_message, driver=driver)
+    def __init__(self, on_message, driver, name, position, id=None, loop=None):
+        super().__init__(id=id, on_message=on_message, driver=driver, loop=loop)
         self.position = position
         self.name = name
         self._state = SwitchState.OFF
@@ -48,13 +48,16 @@ class ToggleSwitch(Actuator):
         else:
             raise ValueError("{} not in {}".format(new_state, SwitchState))
 
+    #TODO we should have a module to build and manage messages so we can change it at will.
     @property
     def message(self):
         return {'id': self.id,
                 'name': self.name,
                 'pos': self.position,
-                'state': self.state}
+                'state': self.state,
+                'type': self.type}
 
+    # If calling driver, then it should be a couroutine???
     def on(self):
         if (self.state == SwitchState.OFF):
             self.driver.on()
@@ -80,10 +83,10 @@ class ToggleSwitch(Actuator):
 
 class TemporizedSwitch(ToggleSwitch):
 
-    def __init__(self, on_message, driver, name, position, on_time=0, off_time=0, id=None):
-        super().__init__(on_message=on_message, driver=driver, name=name, position=position, id=id)
-        self.on_time = on_time
-        self.off_time = off_time
+    def __init__(self, on_message, driver, name, position, on_time=0, off_time=0, id=None, loop=None):
+        super().__init__(on_message=on_message, driver=driver, name=name, position=position, id=id, loop=loop)
+        self.on_time = int(on_time)
+        self.off_time = int(off_time)
 
     def _less_than_a_day(self, seconds):
         return seconds < 86400
@@ -91,14 +94,12 @@ class TemporizedSwitch(ToggleSwitch):
     def on(self):
         super().on()
         if self.on_time:
-            loop = asyncio.get_event_loop()
-            loop.call_later(self.on_time, self.off)
+            self.loop.call_later(self.on_time, self.off)
 
     def off(self):
         super().off()
         if self.off_time:
-            loop = asyncio.get_event_loop()
-            loop.call_later(self.off_time, self.on)
+            self.loop.call_later(self.off_time, self.on)
 
     @property
     def on_time(self):

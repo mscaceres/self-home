@@ -1,18 +1,22 @@
 import domo.event_dispacher as ed
 import ids
+import asyncio
 
 
 class HAS:
 
     def __init__(self):
         self.actuators = {}
+        self.actuators_by_type = {}
         self.sensors = {}
+        self.loop = asyncio.get_event_loop()
 
     def add_actuator(self, actuator):
         self.actuators[actuator.id] = actuator
+        self.actuators_by_type[actuator.type] = actuator
 
     def get_actuator(self, id):
-        a_id = ids.getId(id)
+        a_id = ids.get_id(id)
         return self.actuators[a_id]
 
     def get_actuators(self):
@@ -22,7 +26,7 @@ class HAS:
         self.sensors[sensor.id] = sensor
 
     def get_sensor(self, id):
-        s_id = ids.getId(id)
+        s_id = ids.get_id(id)
         return self.sensors[s_id]
 
     def get_sensors(self):
@@ -35,7 +39,12 @@ class HAS:
         ed.send_message(topic, message)
 
     def start(self):
-        pass
+        try:
+            self.loop.run_forever()
+        except KeyboardInterrupt:
+            self.loop.close()
+        return 0
 
     def shutdown(self):
-        pass
+        self.loop.close()
+        return 0

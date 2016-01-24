@@ -9,10 +9,10 @@ class LoaderException(Exception):
     pass
 
 
-def getFrom(source_type, kwargs):
+def getFrom(source_type, **kwargs):
     try:
         cls = source_type.upper()+'Loader'
-        loader_cls = globals[cls]
+        loader_cls = globals()[cls]
         return loader_cls(**kwargs)
     except KeyError as err:
         pass
@@ -80,7 +80,7 @@ class DBLoader(Loader):
                 d_id, d_cls = self._get_driver("actuator_drivers", "actuator_id", id, conn)
                 d_fields = self._get_fields("actuator_driver_fields","driver_id", d_id, conn)
                 driver = domo.actuators.ActuatorDriverTuple(d_cls, d_id, d_fields)
-                yield domo.actuators.ActuatorTuple(cls, driver, None, id, fields)
+                yield domo.actuators.ActuatorTuple(cls, driver, None, id, None, fields)
             c.close()
 
     def load_sensors_data(self):
@@ -98,9 +98,15 @@ class DBLoader(Loader):
             c.close()
 
     def load_message_topics(self):
-        pass
+        with sqlite3.connect(self.db) as conn:
+            conn.row_factory = sqlite3.Row
+            c = conn.cursor()
+            for row in c.execute("select topic_name, actuator_id, filter_method  from dispaching"):
+                yield (row['topic_name'], row['actuator_id'], row['filter_method'])
+            c.close()
 
 
+# TODO> I need to add some UT for this module
 if __name__ == "__main__":
     l = DBLoader("./domo/domo2.db")
     for a in l.load_actuators_data():

@@ -55,4 +55,4 @@ def create_client(start_port):
         print("BYE")
 
 if __name__ == '__main__':
-    create_clients(30, 8880)
+    create_clients(3, 8887)

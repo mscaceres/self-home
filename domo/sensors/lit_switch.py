@@ -10,11 +10,11 @@ log = logging.getLogger(__name__)
 
 class LitSwitch(Sensor):
 
-    def __init__(self, name, position, send_message, id=None):
+    def __init__(self, name, position, on_message, id=None):
         super().__init__(id=id)
         self.name = name
         self.position = position
-        self.send_message = send_message
+        self.on_message = on_message
         self.state = SwitchState.OFF
         # maybe a call to configure and register to the hal
 
@@ -22,9 +22,9 @@ class LitSwitch(Sensor):
         log.info("New message from driver: {}".format(message))
         self.state = SwitchState[message]
         if self.state == SwitchState.OFF:
-            self.send_message(const.SWITCH_SENSOR_OFF, self.message)
+            self.on_message(const.SWITCH_SENSOR_OFF, self.message)
         elif self.state == SwitchState.ON:
-            self.send_message(const.SWITCH_SENSOR_ON, self.message)
+            self.on_message(const.SWITCH_SENSOR_ON, self.message)
         else:
             pass
 
