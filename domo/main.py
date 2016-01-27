@@ -26,6 +26,7 @@ def start(options, home):
 
     # type and kwargs shall be taken from a Json config file or something
     l = domo.loader.getFrom('db', db="/home/mauro/gitrepos/self-home/domo/domo2.db")
+
     for actuator_tuple in l.load_actuators_data():
             actuator_tuple = actuator_tuple._replace(on_message=home.send_message, loop=home.loop)
             home.add_actuator(domo.actuators.ActuatorFactory.from_tuple(actuator_tuple))
@@ -50,7 +51,7 @@ def main(args=None):
     if args is None:
         args = sys.argv
     try:
-        with open(r"/home/mauro/gitrepos/self-home/logs.json") as f:
+        with open(r"/home/mauro/gitrepos/self-home/resources/logs.json") as f:
             c = f.read()
             config = json.loads(c)
         logging.config.dictConfig(config)
@@ -62,7 +63,7 @@ def main(args=None):
         print("For help use --help")
         return 1
     except Exception as ex:
-        log.exeption(ex)
+        log.exception(stack_info=True)
         return 1
     finally:
         return shutdown(home)

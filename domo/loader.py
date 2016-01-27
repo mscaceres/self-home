@@ -45,6 +45,8 @@ class Loader(metaclass=abc.ABCMeta):
 # Everything shall be in memory...
 # How do we support HA???
 
+# Once we have a Page to create the Sensors, Actuators, et all. we should be saving the objects to DB
+# using pickle instead of all this crap.
 
 class DBLoader(Loader):
 
