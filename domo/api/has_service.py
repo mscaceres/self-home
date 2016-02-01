@@ -1,12 +1,23 @@
 import json
 import asyncio
 import logging
+import collections
+import enum
+import uuid
 from aiohttp import web
 from functools import wraps
 
 
-logging.basicConfig(level=logging.INFO)
-log = logging.getLogger()
+log = logging.getLogger(__name__)
+
+
+class EnumEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, enum.Enum):
+            return obj.name
+        if isinstance(obj, uuid.UUID):
+            return str(obj)
+        return json.JSONEncoder.default(self, obj)
 
 
 def rest_handler(handler_func):
@@ -35,7 +46,7 @@ def rest_handler(handler_func):
                           status='FAILED')
 
         assert isinstance(result, dict)
-        body = json.dumps(result).encode('utf-8')
+        body = json.dumps(result, cls=EnumEncoder).encode('utf-8')
         result = web.Response(body=body)
         result.headers['Content-Type'] = 'application/json'
         if error_code:
@@ -52,15 +63,23 @@ class Rest:
         self.ip = ip
         self.port = port
         self.app = web.Application()
-        self.app.router.add_route('GET', '/', self.index)
-        self.app.router.add_route('POST', '/calculate', self.calculate)
+        self.srv = None
+        self.handler = None
+        self.app.router.add_route('GET', '/has_service/api/v1.0/status', self.get_status)
+        self.app.router.add_route('GET', '/has_service/api/v1.0/status/{id}', self.get_status)
+        self.app.router.add_route('GET', '/has_service/api/v1.0/status/{type}', self.get_status_by_type)
+        # self.app.router.add_route('GET', '/has_service/api/v1.0/status/{type}/{id}', self.get_status_by_type)
+        # self.app.router.add_route('POST', '/has_service/api/v1.0/actuator', self.create_actuator)
+        # self.app.router.add_route('POST', '/has_service/api/v1.0/sensor', self.create_sensor)
+        # self.app.router.add_route('PUT', '/has_service/api/v1.0/actuator/{id}', self.update_actuator)
+        # self.app.router.add_route('PUT', '/has_service/api/v1.0/sensor/{id}', self.update_sensor)
 
 
     def start(self):
         self.handler = self.app.make_handler()
-        f = self.has.loop.create_server(handler, self.ip, self.port)
+        f = self.has.loop.create_server(self.handler, self.ip, self.port)
         self.srv = self.has.loop.run_until_complete(f)
-        log.info('serving on %r', srv.sockets[0].getsockname())
+        log.info('serving on %r', self.srv.sockets[0].getsockname())
 
     def shutdown(self):
         log.info('\nBye')
@@ -69,9 +88,28 @@ class Rest:
         self.has.loop.run_until_complete(self.srv.wait_closed())
         self.has.loop.run_until_complete(self.app.finish())
 
+    @rest_handler
     @asyncio.coroutine
-    def index(self, request):
-        return web.Response(body=b"Hello, world")
+    def get_status(self, request):
+        devices = collections.defaultdict(list)
+        item_id = request.match_info.get('id', None)
+        if item_id is None:
+            for actuator in  sorted(self.has.get_actuators(), key=lambda a: a.type):
+                devices[actuator.name] = actuator.message
+        else:
+            actuator = self.has.get_actuator(item_id)
+            devices[actuator.name] = actuator.message
+        return devices
+
+    @rest_handler
+    @asyncio.coroutine
+    def get_status_by_type(self, request):
+        devices = collections.defaultdict(list)
+        item_type = request.match_info.get('type', None)
+        for actuator in self.has.get_actuators_by_type(item_type):
+            devices[actuator.name] = actuator.message
+        return devices
+
 
     @rest_handler
     @asyncio.coroutine
@@ -80,19 +118,3 @@ class Rest:
         log.info('Message reveived %r', data)
         return dict(answer=42)
 
-
-def main():
-    rest = Rest(object(), 'localhost', 80)
-    rest.start()
-    try:
-        loop = asyncio.get_event_loop()
-        loop.run_forever()
-    except KeyboardInterrupt:
-        pass
-    finally:
-       rest.shutdown()
-    loop.close()
-
-
-if __name__ == '__main__':
-    main()

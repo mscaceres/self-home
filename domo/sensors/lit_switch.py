@@ -33,7 +33,8 @@ class LitSwitch(Sensor):
         return {'id': self.id,
                 'name': self.name,
                 'pos': self.position,
-                'state': self.state}
+                'state': self.state,
+                'type': self.type}
 
     def __repr__(self):
         return "%s at %s is %s" % (self.name, self.position, self.state.name)

@@ -8,7 +8,7 @@ import domo.loader
 import domo.actuators
 import domo.sensors
 import domo.messages
-
+import domo.api.has_service
 
 log = logging.getLogger(__name__)
 
@@ -25,7 +25,7 @@ def parse_args(args):
 def start(options, home):
 
     # type and kwargs shall be taken from a Json config file or something
-    l = domo.loader.getFrom('db', db="/home/mauro/gitrepos/self-home/domo/domo2.db")
+    l = domo.loader.getFrom('db', db="/home/mauro/gitrepos/self-home/sql/domo2.db")
 
     for actuator_tuple in l.load_actuators_data():
             actuator_tuple = actuator_tuple._replace(on_message=home.send_message, loop=home.loop)
@@ -40,6 +40,8 @@ def start(options, home):
         filter_func = domo.messages.get_filter_func(filter_func_str)
         home.register_listener(topic=topic, listener=actuator, message_filter=filter_func)
 
+    # ips and ports shall be taken from a configuration file
+    home.rest = domo.api.has_service.Rest(home, 'localhost', 9999)
     return home.start()
 
 
@@ -63,7 +65,7 @@ def main(args=None):
         print("For help use --help")
         return 1
     except Exception as ex:
-        log.exception(stack_info=True)
+        log.exception("main exception", stack_info=True)
         return 1
     finally:
         return shutdown(home)

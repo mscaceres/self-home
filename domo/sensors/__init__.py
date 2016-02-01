@@ -12,6 +12,9 @@ class Sensor(metaclass=abc.ABCMeta):
         self.id = ids.get_id(id)
         self.on_message = None
 
+    def type(self):
+        return self.__class__.__name__
+
     @abc.abstractmethod
     def on_data(self, message):
         pass

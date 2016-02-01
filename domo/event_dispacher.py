@@ -1,8 +1,9 @@
+import collections
 #{topic:[(callback,message_filter)]}
-DB = {}
+DB = collections.defaultdict(list)
 
 
-def _index_of(seq, listener):
+def _index_of_listener(seq, listener):
     for i, t in enumerate(seq):
         if t[0] == listener:
             return i
@@ -12,15 +13,11 @@ ALL = "EVENT_DISPACHER_ALL_TOPICS"
 
 
 def subscribe(topic, listener, message_filter=None):
-    if topic in DB:
-        DB[topic].append((listener, message_filter))
-    else:
-        DB[topic] = [(listener, message_filter)]
-
+    DB[topic].append((listener, message_filter))
 
 def unsubscribe(topic, listener):
     if topic in DB:
-        i = _index_of(DB[topic], listener)
+        i = _index_of_listener(DB[topic], listener)
         DB[topic].pop(i)
         if not DB[topic]:
             unsubscribe_all(topic)
@@ -34,7 +31,7 @@ def unsubscribe_all(topic=None):
 
 
 def is_subscribed(topic, listener):
-    return (topic in DB and _index_of(DB[topic], listener) is not None)
+    return (topic in DB and _index_of_listener(DB[topic], listener) is not None)
 
 
 def send_message(topic, message):
