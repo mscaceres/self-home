@@ -15,6 +15,7 @@ ALL = "EVENT_DISPACHER_ALL_TOPICS"
 def subscribe(topic, listener, message_filter=None):
     DB[topic].append((listener, message_filter))
 
+
 def unsubscribe(topic, listener):
     if topic in DB:
         i = _index_of_listener(DB[topic], listener)
@@ -31,7 +32,7 @@ def unsubscribe_all(topic=None):
 
 
 def is_subscribed(topic, listener):
-    return (topic in DB and _index_of_listener(DB[topic], listener) is not None)
+    return topic in DB and _index_of_listener(DB[topic], listener) is not None
 
 
 def send_message(topic, message):

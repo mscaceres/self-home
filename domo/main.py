@@ -21,7 +21,6 @@ class Usage(Exception):
 def parse_args(args):
     pass
 
-
 def start(options, home):
 
     # type and kwargs shall be taken from a Json config file or something
@@ -69,7 +68,6 @@ def main(args=None):
         return 1
     finally:
         return shutdown(home)
-
 
 
 if __name__ == "__main__":

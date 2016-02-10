@@ -9,12 +9,13 @@ class HAS:
         self.actuators = {}
         self.actuators_by_type = collections.defaultdict(list)
         self.sensors = {}
+        self.sensors_by_type = collections.defaultdict(list)
         self.loop = asyncio.get_event_loop()
         self.rest = None
 
     def add_actuator(self, actuator):
         self.actuators[actuator.id] = actuator
-        self.actuators_by_type[actuator.type].append(actuator)
+        self.actuators_by_type[actuator.type.lower()].append(actuator)
 
     def get_actuator(self, id):
         a_id = ids.get_id(id)
@@ -29,6 +30,7 @@ class HAS:
 
     def add_sensor(self, sensor):
         self.sensors[sensor.id] = sensor
+        self.sensors_by_type[sensor.type.lower()].append(sensor)
 
     def get_sensor(self, id):
         s_id = ids.get_id(id)

@@ -67,8 +67,7 @@ class Rest:
         self.handler = None
         self.app.router.add_route('GET', '/has_service/api/v1.0/status', self.get_status)
         self.app.router.add_route('GET', '/has_service/api/v1.0/status/{id}', self.get_status)
-        self.app.router.add_route('GET', '/has_service/api/v1.0/status/{type}', self.get_status_by_type)
-        # self.app.router.add_route('GET', '/has_service/api/v1.0/status/{type}/{id}', self.get_status_by_type)
+        self.app.router.add_route('GET', '/has_service/api/v1.0/status/type/{type}', self.get_status_by_type)
         # self.app.router.add_route('POST', '/has_service/api/v1.0/actuator', self.create_actuator)
         # self.app.router.add_route('POST', '/has_service/api/v1.0/sensor', self.create_sensor)
         # self.app.router.add_route('PUT', '/has_service/api/v1.0/actuator/{id}', self.update_actuator)
@@ -94,7 +93,7 @@ class Rest:
         devices = collections.defaultdict(list)
         item_id = request.match_info.get('id', None)
         if item_id is None:
-            for actuator in  sorted(self.has.get_actuators(), key=lambda a: a.type):
+            for actuator in sorted(self.has.get_actuators(), key=lambda a: a.type):
                 devices[actuator.name] = actuator.message
         else:
             actuator = self.has.get_actuator(item_id)
@@ -109,12 +108,3 @@ class Rest:
         for actuator in self.has.get_actuators_by_type(item_type):
             devices[actuator.name] = actuator.message
         return devices
-
-
-    @rest_handler
-    @asyncio.coroutine
-    def calculate(self, request):
-        data = yield from request.json()
-        log.info('Message reveived %r', data)
-        return dict(answer=42)
-
