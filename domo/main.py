@@ -24,7 +24,8 @@ def parse_args(args):
 def start(options, home):
 
     # type and kwargs shall be taken from a Json config file or something
-    l = domo.loader.getFrom('db', db="/home/mauro/gitrepos/self-home/sql/domo2.db")
+    #TODO I need to imrpove this call, I do not know the number of parameters and how to take them from the Configs object
+    l = domo.loader.getFrom(domo.Configs.LOADER_SOURCE, domo.Configs.LOADER_DB_PATH)
 
     for actuator_tuple in l.load_actuators_data():
             actuator_tuple = actuator_tuple._replace(on_message=home.send_message, loop=home.loop)
@@ -52,7 +53,7 @@ def main(args=None):
     if args is None:
         args = sys.argv
     try:
-        with open(r"/home/mauro/gitrepos/self-home/resources/logs.json") as f:
+        with open(domo.Configs.LOGS_CONFIG) as f:
             c = f.read()
             config = json.loads(c)
         logging.config.dictConfig(config)

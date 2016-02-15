@@ -9,11 +9,11 @@ class LoaderException(Exception):
     pass
 
 
-def getFrom(source_type, **kwargs):
+def getFrom(source_type, *args):
     try:
         cls = source_type.upper()+'Loader'
         loader_cls = globals()[cls]
-        return loader_cls(**kwargs)
+        return loader_cls(*args)
     except KeyError as err:
         pass
 #       ConfigError("Loading objects from {} is not supported".format(cls))
