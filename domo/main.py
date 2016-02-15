@@ -41,7 +41,7 @@ def start(options, home):
         home.register_listener(topic=topic, listener=actuator, message_filter=filter_func)
 
     # ips and ports shall be taken from a configuration file
-    home.rest = domo.api.has_service.Rest(home, 'localhost', 9999)
+    home.rest = domo.api.has_service.Rest(home, domo.Configs.REST_IP, domo.Configs.REST_PORT)
     return home.start()
 
 

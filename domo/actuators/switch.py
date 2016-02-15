@@ -27,12 +27,13 @@ class FakeSwitchDriver:
 
 class ToggleSwitch(Actuator):
 
+    TOPIC = const.SWITCH
+
     def __init__(self, on_message, driver, name, position, id=None, loop=None):
         super().__init__(id=id, on_message=on_message, driver=driver, loop=loop)
         self.position = position
         self.name = name
         self._state = SwitchState.OFF
-        self.topic = const.SWITCH
 
     @property
     def state(self):
@@ -44,7 +45,7 @@ class ToggleSwitch(Actuator):
             self._state = new_state
             log.info("New state: {}".format(self._state))
             log.info("Sending message: {}".format(self.message))
-            self.on_message(self.topic, self.message)
+            self.on_message(self.TOPIC, self.message)
         else:
             raise ValueError("{} not in {}".format(new_state, SwitchState))
 
@@ -69,9 +70,9 @@ class ToggleSwitch(Actuator):
             self.state = SwitchState.OFF
 
     def __call__(self, topic, message):
-        if topic == const.SWITCH_SENSOR_ON:
+        if message.state == SwitchState.ON:
             self.on()
-        elif topic == const.SWITCH_SENSOR_OFF:
+        elif message.state == SwitchState.OFF:
             self.off()
         else:
             # log error

@@ -40,3 +40,5 @@ class Configs:
     LOADER_SOURCE = 'DB'
     LOADER_DB_PATH = "/home/mauro/gitrepos/self-home/sql/domo2.db"
     LOGS_CONFIG = r"/home/mauro/gitrepos/self-home/resources/logs.json"
+    REST_IP = "localhost"
+    REST_PORT = "9999"

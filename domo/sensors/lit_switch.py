@@ -21,12 +21,8 @@ class LitSwitch(Sensor):
     def on_data(self, message):
         log.info("New message from driver: {}".format(message))
         self.state = SwitchState[message]
-        if self.state == SwitchState.OFF:
-            self.on_message(const.SWITCH_SENSOR_OFF, self.message)
-        elif self.state == SwitchState.ON:
-            self.on_message(const.SWITCH_SENSOR_ON, self.message)
-        else:
-            pass
+        self.on_message(const.SWITCH, self.message)
+
 
     @property
     def message(self):
