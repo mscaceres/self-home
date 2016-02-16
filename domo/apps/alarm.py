@@ -5,18 +5,21 @@ import domo.messages
 
 
 class AlarmState(enum.Enum):
-    OFF = 0
-    ON = 1
+    DEACTIVATED = 0
+    ACTIVATED = 1
+    RINGING = 2
+
 
 class ZoneState(enum.Enum):
     OFF = 0
     ON = 1
 
+
 class AlarmZone:
 
     def __init__(self, name):
         self.name = name
-        self.state = ZoneState.OFF
+        self.state = ZoneState.ON
         self.sensors = []
 
     def __contains__(self, sensor_name):
@@ -30,7 +33,7 @@ class Alarm:
         self.has = has
         self.sensors = []
         self.actuators = []
-        self.state = AlarmState.OFF
+        self.state = AlarmState.DEACTIVATED
         self.zones = {}
         self.key = key
 
@@ -58,23 +61,24 @@ class Alarm:
 
     def de_activate_zone(self, *zone_names):
         for name in zone_names:
-            self.zones[name].state = ZoneState.ON
+            self.zones[name].state = ZoneState.OFF
 
     def activate_alarm(self):
-        self.state = AlarmState.ON
+        self.state = AlarmState.ACTIVATED
 
     def de_activate_alarm(self, passw):
-        if self.key == passw:
-            self.state = AlarmState.OFF
+        if self.key == passw and self.state is AlarmState.RINGING:
+            self.state = AlarmState.DEACTIVATED
+            # turn off horns.. (what other actions)
 
-    def do_emergency_actions(self):
+    def do_emergency_actions(self, message):
+        self.state = AlarmState.RINGING
         for actuator, act_callable in self.actuators:
             act_callable()
 
     def __call__(self, topic, message):
-        if self.state == AlarmState.ON:
-            if any(sensor.name == message.name for sensor in self.sensors):
+        if self.state == AlarmState.ACTIVATED:
+            if any(sensor.name == message.name for sensor in self.sensors) or \
+            any(zone.state is ZoneState.ON and message.name in zone for zone in self.zones.values()):
                 self.do_emergency_actions()
-            for zone in self.zones:
-                if message.name in zone:
-                    self.do_emergency_actions()
+
