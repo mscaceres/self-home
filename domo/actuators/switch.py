@@ -82,6 +82,16 @@ class ToggleSwitch(Actuator):
         return "{0} at {1} is {2}".format(self.name, self.position, self.state.name)
 
 
+def less_than_a_day(f):
+    def wrapper(obj, seconds):
+        if seconds < 86400:
+            f(obj, seconds)
+        else:
+            raise ValueError("Time shall be less than 86400 seconds")
+        return seconds < 86400
+    return wrapper
+
+
 class TemporizedSwitch(ToggleSwitch):
 
     def __init__(self, on_message, driver, name, position, on_time=0, off_time=0, id=None, loop=None):
@@ -89,8 +99,7 @@ class TemporizedSwitch(ToggleSwitch):
         self.on_time = int(on_time)
         self.off_time = int(off_time)
 
-    def _less_than_a_day(self, seconds):
-        return seconds < 86400
+
 
     def on(self):
         super().on()
@@ -107,19 +116,15 @@ class TemporizedSwitch(ToggleSwitch):
         return self._on_time
 
     @on_time.setter
+    @less_than_a_day
     def on_time(self, seconds):
-        if self._less_than_a_day(seconds):
-            self._on_time = seconds
-        else:
-            raise ValueError("Time shall be less than 86400 seconds")
+        self._on_time = seconds
 
     @property
     def off_time(self):
         return self._off_time
 
     @off_time.setter
+    @less_than_a_day
     def off_time(self, seconds):
-        if self._less_than_a_day(seconds):
-            self._off_time = seconds
-        else:
-            raise ValueError("Time shall be less than 86400 seconds")
+        self._off_time = seconds
